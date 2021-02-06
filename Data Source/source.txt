@@ -1,0 +1,2 @@
+# UFC datasets: https://www.kaggle.com/mdabbert/ultimate-ufc-dataset
+# UFC Attendance: https://en.wikipedia.org/wiki/List_of_UFC_events
