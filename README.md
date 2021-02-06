@@ -3,8 +3,11 @@
 This repository provides explanations of the data analysis process for the DataRes article "[ARTICLE TITLE](URL)", published [DATE]. Please check out our article, which contains visualizations and insights about [TOPIC].
 
 Contributors: 
-Project Lead: Hana Lim 
+
+Project Lead: Hana Lim
+
 Data Visualization Specialists: Lia Bergman-Turnbull, Dara Tan, Ben Brill 
+
 Content Specialists: Zoeb Jamal, Kaushik Naresh 
 
 # Data
