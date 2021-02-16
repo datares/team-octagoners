@@ -1,6 +1,7 @@
 # team-octagoners
 # UFC Simulation, Champion Prediction, Players Analysis 
 This repository provides explanations of the data analysis process for the DataRes article "[ARTICLE TITLE](URL)", published [DATE]. Please check out our article, which contains visualizations and insights about [TOPIC].
+hello
 
 Contributors: 
 
