@@ -9,13 +9,14 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+
 ```{r}
 library(readr)
 library(ggplot2)
 library(dplyr)
-info <- read_csv("ufc-master.csv")
-past_events <- read_csv("most-recent-event.csv")
-future_events <- read_csv("upcoming-event.csv")
+info <- read_csv("C:\\Users\\pione\\OneDrive\\Documents\\Project\\Datares\\team-octagoners\\Data Source\\ufc-master.csv")
+past_events <- read_csv("C:\\Users\\pione\\OneDrive\\Documents\\Project\\Datares\\team-octagoners\\Data Source\\most-recent-event.csv")
+future_events <- read_csv("C:\\Users\\pione\\OneDrive\\Documents\\Project\\Datares\\team-octagoners\\Data Source\\upcoming-event.csv")
 info
 past_events
 future_events
@@ -125,33 +126,6 @@ info %>% group_by(days, isWeekend) %>% summarise(n = n()) %>%
   ggtitle("Barplot of days of the games")
 ```
 
-```{r, eval = FALSE}
-library(plotly)
-df <- read.csv("https://raw.githubusercontent.com/plotly/datasets/master/2014_world_gdp_with_codes.csv")
-df <- df[, -2]
-names(df) <- tolower(colnames(df))
-merged <- merge(info, df, by = "country") 
-
-#fig <- plot_ly(df, type='choropleth', locations=df$CODE, z=df$GDP..BILLIONS., text=df$COUNTRY, colorscale="Blues")
-g <- list(
-  showframe = FALSE,
-  showcoastlines = FALSE,
-  projection = list(type = 'Mercator')
-)
-
-fig <- plot_geo(merged)
-fig <- fig %>% add_trace(
-    z = ~..count.., color = ~..count.., colors = 'Blues',
-    text = ~country, locations = ~code, marker = list(line = "l")
-  )
-fig <- fig %>% colorbar(title = 'UFC Game Count')
-fig <- fig %>% layout(
-    title = 'UFC Game Evolution',
-    geo = g
-  )
-
-fig
-```
 
 
 
