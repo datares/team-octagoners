@@ -119,7 +119,6 @@ R_team_top_players <- R_high_winstreak[c(1:2,6:7,9:10, 15, 21, 23, 31, 37, 39, 4
 R_team_top_players <- select(R_team_top_players, contains("R_"))
 
 test <- cbind(B_team_top_players,R_team_top_players)
-
 ```
 
 # IsWeekend 
