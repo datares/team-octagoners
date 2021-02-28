@@ -1,0 +1,171 @@
+---
+title: "DataRes Winter - UFC Prediction"
+author: "Hana Yerin Lim"
+date: "2/14/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r}
+library(readr)
+library(ggplot2)
+library(dplyr)
+library(tidyverse)
+library(ModelMetrics)
+info <- read_csv("C:\\Users\\pione\\OneDrive\\Documents\\Project\\Datares\\team-octagoners\\Data Source\\ufc-master.csv")
+past_events <- read_csv("C:\\Users\\pione\\OneDrive\\Documents\\Project\\Datares\\team-octagoners\\Data Source\\most-recent-event.csv")
+future_events <- read_csv("C:\\Users\\pione\\OneDrive\\Documents\\Project\\Datares\\team-octagoners\\Data Source\\upcoming-event.csv")
+```
+
+```{r}
+library(chron)
+library(lubridate)
+# Change character date into date format 
+info$date <- as.Date(info$date, "%m/%d/%Y")
+# Add a binary column of Weekend events 
+info$isWeekend <- is.weekend(info$date)
+# Add a column containing days 
+info$days <- weekdays(as.Date(info$date))
+# add a column with months
+info$month <- month(ymd(info$date))
+info$month <- month.abb[info$month]
+info$year <- year(ymd(info$date))
+info <- info[, -match("constant_1", names(info))]
+```
+
+# Factorization 
+```{r}
+info$year <- factor(info$year)
+info$weight_class <- factor(info$weight_class)
+info$gender <- factor(info$gender)
+# info$isWeekend <- factor(info$isWeekend)
+# isWeekend, days, month, year, date, location, country 
+```
+
+```{r}
+temp <- info 
+temp$Winner <- as.factor(as.integer(temp$Winner == "Red"))
+```
+
+# reformat the data 
+```{r}
+rearrange <- temp %>% gather(class, rank, `R_Women's Flyweight_rank`:`B_Pound-for-Pound_rank`)
+newdata <- rearrange[-which(is.na(rearrange$rank)), ]
+newdata$rank <- as.factor(newdata$rank)
+
+#write.csv(newdata, "cleaned_data.csv", row.names = FALSE)
+```
+
+# remove highly correlated variables 
+```{r}
+filtered <- newdata[, -which(unlist(lapply(data, is.numeric)) == FALSE)]
+variances <- apply(filtered, 2, var)
+filtered_variances <- unname(which(is.na(variances)))
+filtered <- filtered[ , -c(filtered_variances, match(c("empty_arena", "year", "rank", "Winner"), names(filtered)))]  # remove columns with variance = 0
+
+# remove predictors highly correlated
+save_features <- character()
+while(ncol(filtered) > 2) {
+  correlation <- cor(filtered[ , 1], filtered[ , 2 : ncol(filtered)])
+  high_correlated <- names(which(correlation[1, ] > 0.8))
+  left_features <- colnames(filtered)[!(colnames(filtered) %in% high_correlated)]
+  left_features <- left_features[-1]
+  save_features <- c(save_features, names(filtered[1]))
+  filtered <- filtered[ ,left_features] 
+}
+train_left <- as.data.frame(newdata[ ,save_features])
+
+# adding columns back
+nonnum_col <- newdata[, which(unlist(lapply(data, is.numeric)) == FALSE)]
+train_left <- cbind(train_left, nonnum_col, newdata[, c(10,12,13)])
+train_left
+
+#a <- cbind(filtered, nonnum_col, newdata[, c(10,12,13)])
+```
+remove columns with 0/NA variances and highly correlated variables 
+
+# split into training / testing 
+```{r}
+library(caret)
+set.seed(999)
+i <- createDataPartition(train_left$Winner, p = 0.8, list = FALSE)
+train <- train_left[i, ]
+test <- train_left[-i, ]
+
+# For rfe 
+x <- train_left[, -match("Winner", names(train_left))]
+y <- train_left$Winner
+x_train <- x[i, ]
+x_test <- x[i, ]
+y_train <- y[i]
+y_test <- y[-i]
+```
+
+# Random Forest 
+```{r}
+library(randomForest)
+names(train) <- make.names(names(train), unique = TRUE)
+names(test) <- make.names(names(test), unique = TRUE)
+
+rf <- randomForest(Winner ~ ., data = train, importance = TRUE, ntree = 2000, mtry = sqrt(ncol(train)), proximity = TRUE) 
+# rf_pred <- predict(rf, test)
+# postResample(rf_pred, test$Winner)
+
+rf_importance <- varImp(rf)
+imp_col <- rownames(rf_importance)[which(abs(rf_importance[ , 1]) > 10)]
+newtrain <- train[ , c(imp_col, "Winner")]
+newtest <- test[ , c(imp_col, "Winner")]
+# a <- newtrain[,-match(c("R_odds","B_odds"), names(newtrain))]
+
+rf_sec <- randomForest(Winner ~ ., data = newtrain, importance = TRUE, ntree = 2000, mtry = sqrt(ncol(newtrain)), proximity = TRUE) 
+rf_sec_pred <- predict(rf_sec, newtest)
+postResample(rf_sec_pred, newtest$Winner)
+rmse(newtest$Winner, rf_sec_pred)
+```
+
+# Support Vector Machine 
+```{r}
+library(e1071) 
+newtrain_svm <- cbind(scale(newtrain[, match(c("B_Height_cms", "R_odds", "B_odds", "R_ev", "B_ev", "height_dif", "reach_dif", "sig_str_dif"), names(newtrain))]),
+                      newtrain[, -match(c("B_Height_cms", "R_odds", "B_odds", "R_ev", "B_ev", "R_fighter", "B_fighter", "height_dif", "reach_dif", "sig_str_dif", "date", "location", "weight_class"), names(newtrain))])
+
+tune_svm <- tune(svm, Winner ~ ., data = newtrain_svm, kernel = "radial", ranges = list(cost = c(0.1,1,10,100,1000)), gamma= c(0.5, 1,2,3,4, 10))
+tune_svm$best.model
+
+classifier <- svm(formula = Winner ~ ., 
+                 data = newtrain_svm, 
+                 type = 'C-classification', 
+                 kernel = 'radial',
+                 gamma  = 1, cost = 1) 
+
+newtest_svm <- cbind(scale(newtest[, match(c("B_Height_cms", "R_odds", "B_odds", "R_ev", "B_ev", "height_dif", "reach_dif", "sig_str_dif"), names(newtest))]),
+                      newtest[, -match(c("B_Height_cms", "R_odds", "B_odds", "R_ev", "B_ev", "R_fighter", "B_fighter", "height_dif", "reach_dif", "sig_str_dif", "date", "location", "weight_class"), names(newtest))])
+
+y_pred <- predict(classifier, newtest_svm) 
+postResample(y_pred, newtest_svm$Winner)
+rmse(newtest_svm$Winner, y_pred)
+```
+
+# RFE
+```{r}
+
+control <- rfeControl(functions = rfFuncs, # random forest
+                      method = "repeatedcv", # repeated cv
+                      repeats = 5, # number of repeats
+                      number = 10) # number of folds
+
+result_rfe1 <- rfe(x = x_train, 
+                   y = y_train, 
+                   sizes = c(1:ncol(x_train)),
+                   rfeControl = control)
+
+predictors(result_rfe1)
+
+# Print the results visually
+ggplot(data = result_rfe1, metric = "Accuracy") + theme_bw()
+```

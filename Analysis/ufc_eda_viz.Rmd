@@ -42,6 +42,10 @@ info$month <- month(ymd(info$date))
 info$month <- month.abb[info$month]
 info$year <- year(ymd(info$date))
 info <- info[, -match("constant_1", names(info))]
+
+rearrange <- info %>% gather(class, rank, `R_Women's Flyweight_rank`:`B_Pound-for-Pound_rank`)
+newdata <- rearrange[-which(is.na(rearrange$rank)), ]
+newdata$rank <- as.factor(newdata$rank)
 ```
 
 # months heatmap 
@@ -54,6 +58,9 @@ ggplot(my) + geom_tile(aes(x = month, y = year, fill = n)) +
   scale_y_continuous("year", labels = as.character(2010:2021), breaks = 2010:2021) +
   ggtitle("Heatmap of frequencies of the game for the past decade") + 
   theme(plot.title = element_text(hjust = 0.5, size = 14))
+
+# Pandemic game state 
+info %>% filter(year == 2020 & month != "Jan" & month != "Feb" & month != "Mar") %>% group_by(month) %>% summarise(count = n())
 ```
 
 # Most Frequent players 
@@ -87,9 +94,7 @@ info %>% group_by(Winner) %>% summarise(n = n()) %>% ungroup() %>% mutate(prop =
 
 # top red/blue players with the most win streaks 
 ```{r}
-info %>% group_by(R_fighter) %>% summarise(count = n()) %>% arrange(desc(count)) 
-
-B_high_winstreak <- info %>% arrange(desc(B_current_win_streak)) %>% filter(B_current_win_streak > 5) 
+B_high_winstreak <- newdata %>% arrange(desc(B_current_win_streak)) %>% filter(B_current_win_streak > 5) 
 ggplot(B_high_winstreak[c(1:3,5:11,13:17),], aes(x = reorder(B_fighter, B_current_win_streak), y = B_current_win_streak, fill = weight_class)) + 
   geom_bar(stat = "identity") + 
   coord_flip() + 
@@ -98,16 +103,23 @@ ggplot(B_high_winstreak[c(1:3,5:11,13:17),], aes(x = reorder(B_fighter, B_curren
   ylab("B_fighter") +
   ggtitle("Top 15 Blue players with the most win streaks")
 
-info %>% arrange(desc(B_wins))
+B_team_top_players <- B_high_winstreak[c(1:3,5:11,13:17), ]
+B_team_top_players <- select(B_team_top_players, contains("B_"))
 
-R_high_winstreak <- info %>% arrange(desc(R_current_win_streak)) %>% filter(R_current_win_streak > 5) 
-ggplot(B_high_winstreak[c(1:3,5:11,13:17),], aes(x = reorder(B_fighter, B_current_win_streak), y = B_current_win_streak, fill = weight_class)) + 
+R_high_winstreak <- newdata %>% arrange(desc(R_current_win_streak)) %>% filter(R_current_win_streak > 5) 
+ggplot(R_high_winstreak[c(1:2,6:7,9:10, 15, 21, 23, 31, 37, 39, 42, 43, 45),], aes(x = reorder(R_fighter, R_current_win_streak), y = R_current_win_streak, fill = weight_class)) + 
   geom_bar(stat = "identity") + 
   coord_flip() + 
-  geom_text(aes(label = B_current_win_streak), hjust=1.5) + 
+  geom_text(aes(label = R_current_win_streak), hjust=1.5) + 
   theme(plot.title = element_text(hjust =0.5)) + 
   ylab("B_fighter") +
   ggtitle("Top 15 Blue players with the most win streaks")
+
+R_team_top_players <- R_high_winstreak[c(1:2,6:7,9:10, 15, 21, 23, 31, 37, 39, 42, 43, 45), ]
+R_team_top_players <- select(R_team_top_players, contains("R_"))
+
+test <- cbind(B_team_top_players,R_team_top_players)
+
 ```
 
 # IsWeekend 
