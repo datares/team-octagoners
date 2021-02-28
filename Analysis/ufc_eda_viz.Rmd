@@ -41,6 +41,7 @@ info$days <- weekdays(as.Date(info$date))
 info$month <- month(ymd(info$date))
 info$month <- month.abb[info$month]
 info$year <- year(ymd(info$date))
+info <- info[, -match("constant_1", names(info))]
 ```
 
 # months heatmap 
