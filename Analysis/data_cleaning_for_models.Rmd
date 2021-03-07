@@ -1,0 +1,59 @@
+---
+title: "Untitled"
+author: "Hana Yerin Lim"
+date: "3/6/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r, message = FALSE}
+library(readr)
+library(ggplot2)
+library(dplyr)
+library(tidyverse)
+library(ModelMetrics)
+info <- read_csv("C:\\Users\\pione\\OneDrive\\Documents\\Project\\Datares\\team-octagoners\\Data Source\\ufc-master.csv")
+```
+
+# Add features 
+```{r}
+library(chron)
+library(lubridate)
+# Change character date into date format 
+info$date <- as.Date(info$date, "%m/%d/%Y")
+# Add a binary column of Weekend events 
+info$isWeekend <- is.weekend(info$date)
+# Add a column containing days 
+info$days <- weekdays(as.Date(info$date))
+# add a column with months
+info$month <- month(ymd(info$date))
+info$month <- month.abb[info$month]
+info$year <- year(ymd(info$date))
+info <- info[, -match("constant_1", names(info))]
+```
+
+# Factorization 
+```{r}
+info$year <- factor(info$year)
+info$weight_class <- factor(info$weight_class)
+info$gender <- factor(info$gender)
+```
+
+```{r}
+temp <- info 
+temp$Winner <- as.factor(as.integer(temp$Winner == "Red"))
+```
+
+# reformat the data 
+```{r}
+rearrange <- temp %>% gather(class, rank, `R_Women's Flyweight_rank`:`B_Pound-for-Pound_rank`)
+newdata <- rearrange[-which(is.na(rearrange$rank)), ]
+newdata$rank <- as.factor(newdata$rank)
+
+#write.csv(newdata, "cleaned_data.csv", row.names = FALSE)
+```
