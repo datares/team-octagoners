@@ -1,5 +1,5 @@
-# team-octagoners
-# UFC Simulation, Champion Prediction, Players Analysis 
+# Team-Octagoners
+# UFC Sport Analytics - Champion Prediction, Players Analysis 
 This repository provides explanations of the data analysis process for the DataRes article "[ARTICLE TITLE](URL)", published [DATE]. Please check out our article, which contains visualizations and insights about UFC.
 
 Contributors: 
@@ -28,5 +28,7 @@ We looked at various aspects of the UFC, including the UFC's growth in the past 
 Given the large number of variables our dataset contained, we realized that we could create machine learning models to predict the winner of a fight. We used a variety of models, including logistic regression, K-nearest neighbors, random forest, decision trees, support vector machine, and neural network.
 
 # Technologies Used 
+R
+Python 
 
 # Results 
