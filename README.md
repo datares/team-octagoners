@@ -16,9 +16,9 @@ The data used to develop our Medium article came from: [Kaggle](https://www.kagg
 The Wikipedia dataset contained data pertaining to each UFC event including the venue, location and attendance for each event. This data stretches from the inception of the UFC in 1993 to present day. We used this in combination with the larger and more detailed Kaggle dataset, which contained 4558 observations and 137 columns. The Kaggle dataset has a variety of data for each fight and for each fighter ranging from 2010 to present, allowing for a large variety of data analysis. The variables in this dataset ranged from player's info such as their wins, losses, and so on, as well as fight specific details such as average significant strikes, average submission attemps, and average takedown attempts. 
 
 # Data Processing 
-
 Data Scraping:
 To construct the Wikipedia dataset, we used the `rvest` package in R to extract the "Past events" title of the page linked above. Canceled events were removed. Additionally, we cleaned the dataset to ensure that merged cells were properly filled out.
+Data Preprocessing: Some modification is used to make the dataset tidier - we transformed 21 weight class rank columns into two columns: weight class and rank. Once the data is adjusted, we removed the columns with zero variance and highly correlated variables with the threshold of 0.8 to avoid multicollinearity. Then we split the data into 80% of training and 20% of the validation set. 
 
 # Analysis and Code 
 Our analysis was split between data visualizations and machine learning models.
