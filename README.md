@@ -18,6 +18,7 @@ The Wikipedia dataset contained data pertaining to each UFC event including the 
 # Data Processing 
 Data Scraping:
 To construct the Wikipedia dataset, we used the `rvest` package in R to extract the "Past events" title of the page linked above. Canceled events were removed. Additionally, we cleaned the dataset to ensure that merged cells were properly filled out.
+
 Data Preprocessing: Some modification is used to make the dataset tidier - we transformed 21 weight class rank columns into two columns: weight class and rank. Once the data is adjusted, we removed the columns with zero variance and highly correlated variables with the threshold of 0.8 to avoid multicollinearity. Then we split the data into 80% of training and 20% of the validation set. 
 
 # Analysis and Code 
