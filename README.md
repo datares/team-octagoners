@@ -1,6 +1,6 @@
 # Team-Octagoners
 # UFC Sport Analytics - Champion Prediction, Players Analysis 
-This repository provides explanations of the data analysis process for the DataRes article "[ARTICLE TITLE](URL)", published [DATE]. Please check out our article, which contains visualizations and insights about UFC.
+This repository provides explanations of the data analysis process for the DataRes article ["What makes an Ultimate Fighter? UFC Sports analytics & prediction] (https://ucladatares.medium.com/what-makes-an-ultimate-fighter-ufc-sports-analytics-prediction-2d4cf4314b14?source=friends_link&sk=643bc43bf42a1aff47e3284f8ade205d)", published [March 24th], 2021. Please check out our article, which contains visualizations and insights about UFC.
 
 Contributors: 
 
@@ -34,4 +34,3 @@ Given the large number of variables our dataset contained, we realized that we c
 R,
 Python 
 
-# Results 
